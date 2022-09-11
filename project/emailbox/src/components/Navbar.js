@@ -1,4 +1,5 @@
 import Mail from "./Mail";
+import Loader from "./Loader";
 import { useState } from "react";
 import { HiOutlineInboxIn } from "react-icons/hi";
 import { RiDraftLine } from "react-icons/ri";
@@ -13,15 +14,42 @@ import {
 
 import { useFetch } from "../hooks/useFetch";
 import { Link, Navigate } from "react-router-dom";
+import axios from "axios";
 
 const Navbar = () => {
-  const { data, loading, error } = useFetch("/emails");
-  console.log("---->", data);
+  const [destination, setDestination] = useState();
+  const [titke, setTitle] = useState();
+  const [content, setContent] = useState();
+  const [body, setBody] = useState({
+    destination: "",
+    title: "",
+    content: "",
+    sent: true,
+    sendername: "akilimalijoelle@gmail.com",
+  });
+  const [loading2, setLoading2] = useState(false);
+
+  const senMail = async () => {
+    if (!body.destination || !body.title || !body.content) {
+      alert("all information are required before sending mail");
+    }
+    await axios
+      .post("http://localhost:8000/api/emails", body)
+      .then((res) => {
+        setLoading2(false);
+      })
+      .catch((e) => {
+        console.log(e?.response?.data);
+      });
+  };
+
+  const { data, loading, error } = useFetch("/emails/inbox");
+
   const [visible, setVisble] = useState(false);
   const handleClick = () => {
     setVisble(!visible);
-    console.log(visible);
   };
+
   return (
     <div className=" flex ">
       <div className="flex   flex-col w-[15%] bg-gray-100  h-screen sticky  ">
@@ -31,13 +59,17 @@ const Navbar = () => {
         </div>
         <div className="flex text-black mt-5 pl-3">
           <ul>
-            <div className="flex items-center gap-2 py-2">
+            <div className="flex items-center gap-2 py-2 bg-blue-300 rounded-lg w-[150px]">
               <HiOutlineInboxIn size={20} />
-              <li className="cursor-pointer"> Inbox 100</li>
+              <Link to="/mails">
+                <li className="cursor-pointer "> Inbox </li>
+              </Link>
             </div>
             <div className="flex items-center gap-2 py-2">
               <BiSend size={20} />
-              <li className="cursor-pointer"> Sent</li>
+              <Link to="/mails/sent">
+                <li className="cursor-pointer"> Sent</li>
+              </Link>
             </div>
             <div className="flex items-center gap-2 py-2">
               <RiDraftLine size={20} />
@@ -67,21 +99,27 @@ const Navbar = () => {
             <BiUser size={25} className="border-2 border-black rounded-full " />
           </span>
         </div>
-        <div className="flex flex-col bg-white mt-5 rounded-lg border-none">
-          {data.map((item, key = item._id) => (
-            <Link to={`/mails/${item._id}`}>
-              <Mail
-                content={
-                  item.content.length > 90
-                    ? item.content.substring(0, 80) + "..."
-                    : item?.description
-                }
-                sendername={item?.sendername}
-                date={item?.createdAt}
-              />
-            </Link>
-          ))}
-        </div>
+        {loading ? (
+          <Loader />
+        ) : (
+          <>
+            <div className="flex flex-col bg-white mt-5 rounded-lg border-none">
+              {data.map((item, key = item._id) => (
+                <Link to={`/mails/${item._id}`}>
+                  <Mail
+                    content={
+                      item.content.length > 90
+                        ? item.content.substring(0, 80) + "..."
+                        : item?.description
+                    }
+                    sendername={item?.sendername}
+                    date={item?.createdAt}
+                  />
+                </Link>
+              ))}
+            </div>
+          </>
+        )}
       </div>
       {visible && (
         <div className="bg-white h-[100px] flex  flex-col absolute w-[400px] h-[400px] mx-[100px] mt-[18%] ">
@@ -94,6 +132,9 @@ const Navbar = () => {
               type="text"
               placeholder=""
               className="w-[80%] outline-none px-3"
+              onChange={(e) => {
+                setBody({ ...body, destination: e.target.value });
+              }}
             />
           </div>
           <hr />
@@ -103,20 +144,27 @@ const Navbar = () => {
               type="text"
               placeholder=" "
               className="w-[80%] outline-none px-3"
+              onChange={(e) => {
+                setBody({ ...body, title: e.target.value });
+              }}
             />
           </div>
           <hr />
           <div>
-            <input
+            <textarea
               type="text"
               placeholder=" your text message "
-              className="w-[80%] h-[300px] outline-none "
+              className="w-[80%] h-[200px] p-2 mt-0  outline-none"
+              onChange={(e) => {
+                setBody({ ...body, content: e.target.value });
+              }}
             />
           </div>
           <button
-            className="bg-blue-900 w-20 rounded-lg  ml-3"
+            className="bg-blue-900 w-20 rounded-lg  ml-3  text-white"
             onClick={() => {
               setVisble(!visible);
+              senMail();
             }}
           >
             send

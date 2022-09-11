@@ -27,3 +27,28 @@ export const getEmail = async (req, res, next) => {
     next(err);
   }
 };
+export const getSentMail = async (req, res, next) => {
+  try {
+    const mails = await emailModel.find({ sent: true });
+    res.status(200).json(mails);
+  } catch (err) {
+    next(err);
+  }
+};
+export const getInboxMail = async (req, res, next) => {
+  try {
+    const mails = await emailModel.find({ sent: false });
+    res.status(200).json(mails);
+  } catch (err) {
+    next(err);
+  }
+};
+export const countInbox = async (req, res, next) => {
+  try {
+    const countEmail = await emailModel.countDocuments({ sent: "false" });
+
+    res.status(200).json({ sent: "false", count: countEmail });
+  } catch (err) {
+    next(err);
+  }
+};

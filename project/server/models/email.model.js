@@ -6,6 +6,9 @@ const EmailSchema = new mongoose.Schema(
     content: { type: String, required: true },
     sendername: { type: String, required: true },
     status: { type: String, default: "unread" },
+    destination: { type: String, required: true },
+
+    sent: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

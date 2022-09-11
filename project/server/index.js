@@ -3,10 +3,17 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import EmailRoute from "./route/email.route.js";
+import cors from "cors";
 dotenv.config();
 const app = express();
 app.use(cookieParser());
 app.use(express.json());
+app.use(
+  cors({
+    origin: (origin, callback) => callback(null, true),
+    credentials: true,
+  })
+);
 
 app.use("/api/emails", EmailRoute);
 

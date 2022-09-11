@@ -1,23 +1,21 @@
 import { useState } from "react";
 import { HiOutlineInboxIn } from "react-icons/hi";
-import { RiDraftLine, RiErrorWarningLine } from "react-icons/ri";
-import { BiLoaderCircle, BiSend, BiUser, BiTrash } from "react-icons/bi";
+import { RiDraftLine } from "react-icons/ri";
+import { BiLoaderCircle, BiSend, BiUser } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import {
   AiOutlineSetting,
   AiOutlineInfoCircle,
   AiTwotoneEdit,
-  AiOutlineArrowLeft,
   AiOutlineClose,
-  AiOutlineMail,
-  AiOutlineClockCircle,
 } from "react-icons/ai";
-import { BsArrow90DegLeft, BsArrow90DegRight } from "react-icons/bs";
+
 import { useFetch } from "../hooks/useFetch";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import Mail from "../components/Mail";
 import axios from "axios";
 
-const Message = () => {
+const SentMessage = () => {
   const [body, setBody] = useState({
     destination: "",
     title: "",
@@ -41,12 +39,12 @@ const Message = () => {
       });
   };
 
-  const id = useParams();
+  const { data, loading, error } = useFetch("/emails/sent");
 
-  const { data, loading, error } = useFetch(`/emails/findbyid/${id.mailId}`);
   const [visible, setVisble] = useState(false);
   const handleClick = () => {
     setVisble(!visible);
+    console.log(visible);
   };
   return (
     <div className=" flex ">
@@ -63,7 +61,7 @@ const Message = () => {
                 <li className="cursor-pointer"> Inbox </li>
               </Link>
             </div>
-            <div className="flex items-center gap-2 py-2">
+            <div className="flex items-center gap-2 py-2 bg-blue-300 rounded-lg w-[150px]">
               <BiSend size={20} />
               <Link to="/mails/sent">
                 <li className="cursor-pointer"> Sent</li>
@@ -97,36 +95,20 @@ const Message = () => {
             <BiUser size={25} className="border-2 border-black rounded-full " />
           </span>
         </div>
-        <div className="flex flex-col bg-white mt-5 h-[500px] mr-5 rounded-lg border-none">
-          <div className="flex gap-5 p-3">
-            <Link to="/mails">
-              <AiOutlineArrowLeft size={20} />
+        <div className="flex flex-col bg-white mt-5 rounded-lg border-none">
+          {data.map((item, key = item._id) => (
+            <Link to={`/mails/${item._id}`}>
+              <Mail
+                content={
+                  item.content.length > 90
+                    ? item.content.substring(0, 80) + "..."
+                    : item?.description
+                }
+                sendername={item?.destination}
+                date={item?.createdAt}
+              />
             </Link>
-            <RiErrorWarningLine size={20} />
-            <AiOutlineMail size={20} />
-            <AiOutlineClockCircle size={20} />
-            <BiTrash size={20} />
-          </div>
-          <div>
-            <span className="flex items-start p-5 text-2xl">{data?.title}</span>
-            <span className="flex items-start p-5 ">
-              From : {data?.sendername}
-            </span>
-            <hr />
-            <span className="flex items-start p-5 w-[70%]">
-              <p>{data?.content}</p>
-            </span>
-            <div className=" flex gap-10 items-center justify-start mt-20">
-              <div className="flex items-end gap-1 border-2 rounded-xl p-1 w-32 px-4 border-gray-700 ">
-                <BsArrow90DegLeft />
-                <button className="">Answer</button>
-              </div>
-              <div className="flex items-end gap-1 border-2 rounded-xl p-1 w-32 px-4 border-gray-700 ">
-                <button>foward</button>
-                <BsArrow90DegRight />
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
       {visible && (
@@ -183,4 +165,4 @@ const Message = () => {
   );
 };
 
-export default Message;
+export default SentMessage;

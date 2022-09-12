@@ -51,7 +51,7 @@ const Navbar = () => {
   };
 
   return (
-    <div className=" flex ">
+    <div className=" flex  ">
       <div className="flex   flex-col w-[15%] bg-gray-100  h-screen sticky  ">
         <div className="bg-gray-50  mx-2 gap-1 flex  w-[15p0x] mt-5 py-3 px-1 rounded-lg items-center">
           <AiTwotoneEdit size={25} />

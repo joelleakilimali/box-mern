@@ -45,9 +45,17 @@ export const getInboxMail = async (req, res, next) => {
 };
 export const countInbox = async (req, res, next) => {
   try {
-    const countEmail = await emailModel.countDocuments({ sent: "false" });
+    const countEmail = await emailModel.countDocuments({
+      sent: "false",
+    });
+    const countUnread = await emailModel.countDocuments({
+      isRead: "false",
+    });
 
-    res.status(200).json({ sent: "false", count: countEmail });
+    res.status(200).json([
+      { sent: "false", count: countEmail },
+      { isRead: "false", unread: countUnread },
+    ]);
   } catch (err) {
     next(err);
   }
